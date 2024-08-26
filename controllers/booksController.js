@@ -1,46 +1,117 @@
-const PostBook = async (req,res)=>{
+import Books from "../models/booksModel.js";
+import mongoose from "mongoose";
+export const PostBook = async (req,res)=>{
     try{
-
+        const duplicate = await Books.findOne({name: req.body.name})
+        console.log(duplicate,"--------")
+        if (duplicate) {
+            return res.status(409).json({msg: "Book with this title already exists"})
+        }
+        let book=new Books({
+            name: req.body.name,
+            description: req.body.description,
+            author: req.body.author, 
+            image: req.body.image,
+            price: req.body.price,
+            genre: req.body.genre,
+            sold: req.body.sold,
+            stock: req.body.stock,
+            slug: req.body.slug,
+        });
+        book= await book.save()
+        res.status(200).json({
+            msg: "Book has been added",
+            data: book
+        })
     }
-    catch(err){
-
+    catch(error){
+        console.error(error)
+        res.status(409).json({
+            msg: "Book already exists"
+        })
+        res.status(500).json({ 
+            msg: "internal server error", 
+            error: error.message 
+        });
     }
 }
-const GetBookById = async (req,res)=>{
+export const GetBookById = async (req,res)=>{
     try{
-
-    }
-    catch(err){
+        console.log(req.params.slug, "-----slug ")
+        const book = await Books.findOne({slug: req.params.slug})
+        if (!book) {
+            return res.status(404).json({ msg: "Book not found" });
+        }
         
-    }
-}
-const GetAllBooks = async (req,res)=>{
-    try{
-
+        res.status(200).json(book);
     }
     catch(err){
-        
+        console.error(err)
+        res.status(500).json({ 
+            msg: "Something went wrong", 
+            error: err.message 
+        });
     }
 }
-const UpdateBook = async (req,res)=>{
+export const GetAllBooks = async (req,res)=>{
     try{
-
+        const book= await Books.find()
+        return res.status(200).json({
+            data: book
+        })
     }
     catch(err){
-        
+        console.error(err)
+        res.status(500).json({ 
+            msg: "Something went wrong", 
+            error: err.message 
+        });
     }
 }
-const DeleteBook = async (req,res)=>{
+export const UpdateBook = async (req,res)=>{
     try{
-
+        if(!mongoose.isValidObjectId(req.params.id)) {
+            return res.status(400).send('Invalid Book Id')
+         }
+        const book = await Books.findByIdAndUpdate(
+            req.params.id,
+            {
+                name: req.body.name,
+                description: req.body.description,
+                author: req.body.author, 
+                image: req.body.image,
+                price: req.body.price,
+                genre: req.body.genre,
+            },
+            { new:true }
+        )
+        if (!book){
+            return res.status(400).json({msg:"Book Not Found"})
+        }
+        return res.status(200).json(book)
     }
     catch(err){
-        
+        console.error(err)
+        res.status(500).json({ 
+            msg: "Something went wrong", 
+            error: err.message 
+        });
     }
 }
-
-exports.PostBook = PostBook
-exports.GetBookById = GetBookById
-exports.GetAllBooks = GetAllBooks
-exports.UpdateBook =UpdateBook
-exports.DeleteBook = DeleteBook
+export const DeleteBook = async (req,res)=>{
+    try{
+        const result =await Books.findByIdAndDelete(req.params.id)
+        console.log(result,"----result")
+        if(!result){
+            res.status(400).json({msg: "Note not found"})
+        }
+        return res.status(200).json({msg: `Successfully deleted `})
+    }
+    catch(err){
+        console.error(err)
+        res.status(500).json({ 
+            msg: "Something went wrong", 
+            error: err.message 
+        });
+    }
+}

@@ -20,6 +20,7 @@ const corsOptions = {
 // Middleware
 app.use(express.json()); 
 app.use(cors(corsOptions));
+app.use(express.urlencoded({ extended: true }));
 
 // connect to database
 connectDB();
