@@ -1,23 +1,29 @@
 import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
+import slugify from 'slugify';
 
 const authorSchema = new Schema({
-    Name: {
+    name: {
       type: String,
       required: [true, "Please enter the author name"],
     },
-    biography: {
-      type: String,
-      required: false,
-    },
-    books: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Book',
-    }],
-  }, {
-    timestamps: true,
+    slug: {
+      type: String, 
+      slug: "name", 
+      unique: true
+    }
+  }, { 
+    timestamps: true 
   });
-
+authorSchema.pre('save', function (next) {
+  if (this.isModified('name') || this.isNew) {
+    this.slug = slugify(this.name, {
+      lower: true,  
+      strict: true  
+    });
+  }
+  next();
+});
 const Author = mongoose.model('Author', authorSchema);
 
 export default Author;

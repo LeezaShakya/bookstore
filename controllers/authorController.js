@@ -1,19 +1,93 @@
 import Author from "../models/authorModel.js";
 
-// Create a new author
-export const createAuthor = async (req, res) => {
+export const getAllAuthors = async (req, res) => {
+    try{
+      const authors = await Author.find();
+      res.status(200).json({
+        success:true,
+        authors});
+    } catch(error){
+      res.status(500).json({ 
+        success:false, 
+        error: error.message });
+    }
+};
+
+export const getAuthorById = async (req, res) => {
   try {
-    const author = new Author(req.body);
-    await author.save();
-    res.status(201).json({ author });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const { slug } = req.params;
+    const author = await Author.findOne({ slug });
+    if (!author) {
+      return res.status(404).json({
+        success: false,
+        message: 'Author not found',
+      });
+    }
+    res.status(200).json({
+      success: true,
+      author,
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
 
-// Get all authors
-export const getAllAuthors = async (req, res) => {
- res.send("All users")
+export const createAuthor = async (req, res) => {
+  try {
+    const { name} = req.body;
+    const newAuthor = new Author({
+      name
+    });
+    const savedAuthor = await newAuthor.save();
+    res.status(201).json({ 
+      success: true, 
+      message : `${savedAuthor.name} author has been added sucessfully`});
+  } catch (error) {
+    res.status(500).json({ 
+      success: false, 
+      error: error.message });
+  }
 };
 
+export const updateAuthor = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    const author = await Author.findByIdAndUpdate(id, updateData, {
+      new: true
+    });
+    if(!author){
+      return res.status(404).json({
+        success:false,
+        message: 'Author not found' 
+      });
+    }
+    res.status(200).json({
+      success: true,
+      author: author
+    });
+  } catch (error) {
+    res.status(400).json({
+      success:false,
+      error: error.message });
+  }
+};
 
+export const deleteAuthor = async (req, res) => {
+  try {
+    const  deletedauthor = await Author.findByIdAndDelete(req.params.id);
+    if (!deletedauthor){
+      return res.status(404).json({
+        success:false,
+        message: 'Author not found' });
+    }
+    res.status(201).json({ 
+      success:true,
+      message : `${deletedauthor.name} author has been deleted sucessfully`
+    });
+  } catch (error) {
+    res.status(400).json({
+      success:false,
+      error: error.message });
+  }
+};
