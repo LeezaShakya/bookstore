@@ -17,8 +17,9 @@ export const PostBook = async (req,res)=>{
             sold: req.body.sold,
             stock: req.body.stock,
             slug: req.body.slug,
-        });
+        })
         book= await book.save()
+        book= await book.populate('genre')
         res.status(200).json({
             msg: "Book has been added",
             data: book
@@ -70,11 +71,8 @@ export const GetAllBooks = async (req,res)=>{
 }
 export const UpdateBook = async (req,res)=>{
     try{
-        if(!mongoose.isValidObjectId(req.params.id)) {
-            return res.status(400).send('Invalid Book Id')
-         }
-        const book = await Books.findByIdAndUpdate(
-            req.params.id,
+        const book = await Books.findOneAndUpdate(
+            { slug: req.params.slug },
             {
                 name: req.body.name,
                 description: req.body.description,
@@ -100,10 +98,9 @@ export const UpdateBook = async (req,res)=>{
 }
 export const DeleteBook = async (req,res)=>{
     try{
-        const result =await Books.findByIdAndDelete(req.params.id)
-        console.log(result,"----result")
+        const result =await Books.findOneAndDelete({ slug: req.params.slug })
         if(!result){
-            res.status(400).json({msg: "Note not found"})
+            res.status(400).json({msg: "Book not found"})
         }
         return res.status(200).json({msg: `Successfully deleted `})
     }
