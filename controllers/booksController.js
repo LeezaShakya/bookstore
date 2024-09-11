@@ -19,6 +19,7 @@ export const PostBook = async (req,res)=>{
         })
         book= await book.save()
         book= await Books.findById(book._id).populate('author').populate('genre');
+        // book= await book.populate('genre') 
         res.status(200).json({
             msg: "Book has been added",
             data: book
