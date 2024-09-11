@@ -5,7 +5,7 @@ export const getAllAuthors = async (req, res) => {
       const authors = await Author.find();
       res.status(200).json({
         success:true,
-        authors});
+        data: authors});
     } catch(error){
       res.status(500).json({ 
         success:false, 
@@ -25,7 +25,7 @@ export const getAuthorById = async (req, res) => {
     }
     res.status(200).json({
       success: true,
-      author,
+      data:author,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -34,14 +34,16 @@ export const getAuthorById = async (req, res) => {
 
 export const createAuthor = async (req, res) => {
   try {
-    const { name} = req.body;
+    const { name } = req.body;
     const newAuthor = new Author({
       name
     });
     const savedAuthor = await newAuthor.save();
     res.status(201).json({ 
       success: true, 
-      message : `${savedAuthor.name} author has been added sucessfully`});
+      message : `${savedAuthor.name} author has been added sucessfully`,
+      data : savedAuthor
+    });
   } catch (error) {
     res.status(500).json({ 
       success: false, 
@@ -51,9 +53,9 @@ export const createAuthor = async (req, res) => {
 
 export const updateAuthor = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { slug } = req.params;
     const updateData = req.body;
-    const author = await Author.findByIdAndUpdate(id, updateData, {
+    const author = await Author.findOneAndUpdate(slug, updateData, {
       new: true
     });
     if(!author){
@@ -64,7 +66,7 @@ export const updateAuthor = async (req, res) => {
     }
     res.status(200).json({
       success: true,
-      author: author
+      data: author
     });
   } catch (error) {
     res.status(400).json({
@@ -75,7 +77,7 @@ export const updateAuthor = async (req, res) => {
 
 export const deleteAuthor = async (req, res) => {
   try {
-    const  deletedauthor = await Author.findByIdAndDelete(req.params.id);
+    const  deletedauthor = await Author.findByIdAndDelete({ slug: req.params.slug });
     if (!deletedauthor){
       return res.status(404).json({
         success:false,

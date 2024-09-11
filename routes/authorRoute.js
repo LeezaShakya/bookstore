@@ -3,11 +3,11 @@ const router = express.Router();
 import { createAuthor,getAllAuthors,getAuthorById ,deleteAuthor, updateAuthor } from '../controllers/authorController.js';
 
 
-router.get('/getauthor', getAllAuthors);
-router.get('/getauthor/:slug', getAuthorById);
-router.post('/createauthor', createAuthor);
-router.delete('/deleteauthor/:id', deleteAuthor);
-router.put('/updateauthor/:id', updateAuthor);
+router.get('/', getAllAuthors);
+router.get('/:slug', getAuthorById);
+router.post('/', createAuthor);
+router.delete('/:slug', deleteAuthor);
+router.put('/:slug', updateAuthor);
 
 
 export default router;
