@@ -29,16 +29,15 @@ export default function queryFilter(options={}) {
         }
         
         //book sort
-        if (options.enableBookSort && sort_by) {
             if (sort_by === 'featured') {
               queryOptions.sort = { [sort_by]: -1 };
             } else if (sort_by === 'bestseller') {
               queryOptions.sort = { sold: -1 };
-            }
-          } else if (sort_by) {
+            }else if (sort_by) {
             const [sortBy, sortValue] = sort_by.split('-');
             const sortOrder = sortValue === 'ascending' ? 1 : -1;
             queryOptions.sort = { [sortBy]: sortOrder };
+            console.log(queryOptions)
           }
         
     

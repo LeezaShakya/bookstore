@@ -7,7 +7,6 @@ router.post('/', PostBook )
 router.get('/:slug', GetBookById )
 router.get('/', queryFilter({ 
     enableSearch: true,
-    enableBookSort: true,
     enableBookFilters: true
   }), GetAllBooks);
 router.put('/:slug', UpdateBook )
