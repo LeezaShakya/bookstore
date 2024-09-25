@@ -113,13 +113,12 @@ export const UpdateUsername = async (req,res)=>{
 
 export const ChangePassword = async (req,res)=>{
     try{
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const userId = decoded.id;
+        console.log(req.user, "---user")
 
         const {password, newPassword} = req.body
 
-        const user = await User.findById(userId);
+        const user = await User.findById(req.user.id);
+
         const matchPassword = await bcrypt.compare(password, user.password)
         if (!matchPassword) {
             return res.status(400).json({ error: "Invalid Credentials" })

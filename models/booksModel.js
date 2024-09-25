@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
 import slugify from 'slugify';
+
 const booksSchema = new Schema({
     name: {
         type: String,
@@ -46,11 +47,11 @@ const booksSchema = new Schema({
         type: String,
         unique:true,
     },
-    bestseller:{
+    featured:{
         type: Boolean,
         required: true,
         default: false,
-    }
+    },
 },
 {
     timestamps: true

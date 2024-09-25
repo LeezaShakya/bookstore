@@ -14,8 +14,6 @@ export default function authJwt() {
             {url:/\/api\/books(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/genre(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/authors(.*)/, methods: ['GET','OPTIONS']},
-            {url: /\/api\/v1\/orders(.*)/,methods: ['GET', 'OPTIONS', 'POST']},
-            {url: /\/api\/v1\/cart(.*)/,methods: ['GET', 'OPTIONS', 'POST']},
         ]
     })
 }

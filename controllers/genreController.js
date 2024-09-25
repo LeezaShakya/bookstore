@@ -1,4 +1,6 @@
 import Genre from "../models/genreModel.js";
+import mongoose from "mongoose";
+
 export const PostGenre = async (req,res)=>{
     try{
         const duplicate = await Genre.findOne({name: req.body.name})
@@ -44,7 +46,10 @@ export const GetGenreById = async (req,res)=>{
 }
 export const GetAllGenre = async (req,res)=>{
     try{
-        const genre= await Genre.find()
+        const genre = await Genre.find(req.queryFilter)
+            .sort(req.queryOptions.sort)
+            .limit(req.queryOptions.limit)
+            .skip((req.queryOptions.page - 1) * req.queryOptions.limit);
         return res.status(200).json({
             data: genre
         })

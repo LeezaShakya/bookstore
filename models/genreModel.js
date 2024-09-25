@@ -22,5 +22,6 @@ genreSchema.pre('save', function (next) {
     }
     next();
   });
+
 const Genre = mongoose.model('Genre', genreSchema)
 export default Genre

@@ -1,4 +1,8 @@
+import queryFilter from "../config/filter.js";
 import Books from "../models/booksModel.js";
+import Genre from "../models/genreModel.js";
+import mongoose from "mongoose";
+
 export const PostBook = async (req,res)=>{
     try{
         const duplicate = await Books.findOne({name: req.body.name})
@@ -27,7 +31,6 @@ export const PostBook = async (req,res)=>{
     }
     catch(error){
         console.error(error)
-        console.log(req.body.name)
         res.status(409).json({
             msg: "Book already exists"
         })
@@ -55,21 +58,39 @@ export const GetBookById = async (req,res)=>{
         });
     }
 }
-export const GetAllBooks = async (req,res)=>{
-    try{
-        const book= await Books.find()
+
+export const GetAllBooks = async (req, res) => {
+    try {
+        if(req.queryFilter.genre){
+            const genre = await Genre.findOne({name: req.queryFilter.genre})
+            if(genre){
+                req.queryFilter.genre = genre
+            }
+            else{
+                return res.status(404).json({
+                    msg:"Genre not found"
+                })
+            }
+        }
+        const books = await Books.find(req.queryFilter)
+            .populate('genre')
+            .sort(req.queryOptions.sort)
+            .limit(req.queryOptions.limit)
+            .skip((req.queryOptions.page - 1) * req.queryOptions.limit);
+
         return res.status(200).json({
-            data: book
-        })
-    }
-    catch(err){
-        console.error(err)
-        res.status(500).json({ 
-            msg: "Something went wrong", 
-            error: err.message 
+            data: books
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            msg: "Something went wrong",
+            error: err.message
         });
     }
-}
+};
+
+
 export const UpdateBook = async (req,res)=>{
     try{
         const book = await Books.findOneAndUpdate(
@@ -113,3 +134,4 @@ export const DeleteBook = async (req,res)=>{
         });
     }
 }
+
