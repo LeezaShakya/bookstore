@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Schema } from "mongoose";
-import slug from 'mongoose-slug-generator';
-mongoose.plugin(slug);
+import slugify from 'slugify';
+
 const booksSchema = new Schema({
     name: {
         type: String,
@@ -46,7 +46,6 @@ const booksSchema = new Schema({
     slug:{
         type: String,
         unique:true,
-        slug:"name",
     },
     featured:{
         type: Boolean,
@@ -58,5 +57,14 @@ const booksSchema = new Schema({
     timestamps: true
 });
 
+booksSchema.pre('save', function (next) {
+    if (this.isModified('name') || this.isNew) {
+      this.slug = slugify(this.name, {
+        lower: true,  
+        strict: true  
+      });
+    }
+    next();
+  });
 const Books = mongoose.model('Book', booksSchema);
 export default Books

@@ -15,12 +15,14 @@ const PORT = process.env.PORT || 3000;
 // cors config
 const corsOptions = {
   origin: true,
+  methods: ['GET','POST','DELETE','PUT'],
   credentials: true,
   optionSuccessStatus: 200
 };
 
 // Middleware
 app.use(express.json()); 
+// app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(authJwt())

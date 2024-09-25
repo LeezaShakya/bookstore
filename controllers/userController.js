@@ -118,6 +118,7 @@ export const ChangePassword = async (req,res)=>{
         const {password, newPassword} = req.body
 
         const user = await User.findById(req.user.id);
+
         const matchPassword = await bcrypt.compare(password, user.password)
         if (!matchPassword) {
             return res.status(400).json({ error: "Invalid Credentials" })

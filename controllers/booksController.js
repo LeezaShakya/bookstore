@@ -2,6 +2,7 @@ import queryFilter from "../config/filter.js";
 import Books from "../models/booksModel.js";
 import Genre from "../models/genreModel.js";
 import mongoose from "mongoose";
+
 export const PostBook = async (req,res)=>{
     try{
         const duplicate = await Books.findOne({name: req.body.name})
@@ -21,7 +22,8 @@ export const PostBook = async (req,res)=>{
             slug: req.body.slug,
         })
         book= await book.save()
-        book= await book.populate('genre')
+        book= await Books.findById(book._id).populate('author').populate('genre');
+        // book= await book.populate('genre') 
         res.status(200).json({
             msg: "Book has been added",
             data: book
@@ -56,6 +58,7 @@ export const GetBookById = async (req,res)=>{
         });
     }
 }
+
 export const GetAllBooks = async (req, res) => {
     try {
         if(req.queryFilter.genre){
@@ -86,6 +89,7 @@ export const GetAllBooks = async (req, res) => {
         });
     }
 };
+
 
 export const UpdateBook = async (req,res)=>{
     try{
@@ -130,3 +134,4 @@ export const DeleteBook = async (req,res)=>{
         });
     }
 }
+

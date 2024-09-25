@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import slug from 'mongoose-slug-generator';
+import slugify from 'slugify';
 import { Schema } from "mongoose";
 
 const genreSchema = new Schema({
@@ -11,9 +11,17 @@ const genreSchema = new Schema({
     slug: {
         type: String,
         unique:true,
-        slug:"name",
     }
 })
+genreSchema.pre('save', function (next) {
+    if (this.isModified('name') || this.isNew) {
+      this.slug = slugify(this.name, {
+        lower: true,  
+        strict: true  
+      });
+    }
+    next();
+  });
 
 const Genre = mongoose.model('Genre', genreSchema)
 export default Genre

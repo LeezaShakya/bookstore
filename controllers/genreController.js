@@ -1,5 +1,6 @@
 import Genre from "../models/genreModel.js";
 import mongoose from "mongoose";
+
 export const PostGenre = async (req,res)=>{
     try{
         const duplicate = await Genre.findOne({name: req.body.name})
