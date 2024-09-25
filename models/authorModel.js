@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 
 const authorSchema = new Schema({
-    Name: {
+    name: {
       type: String,
       required: [true, "Please enter the author name"],
     },

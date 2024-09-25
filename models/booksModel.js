@@ -48,11 +48,11 @@ const booksSchema = new Schema({
         unique:true,
         slug:"name",
     },
-    bestseller:{
+    featured:{
         type: Boolean,
         required: true,
         default: false,
-    }
+    },
 },
 {
     timestamps: true
