@@ -1,14 +1,15 @@
 
 import express from 'express';
 const router = express.Router();
-import { createOrder , getOrderById , getAllOrders,  updateOrderById , deleteOrderById } from '../controllers/orderController.js';
-
+import { createOrder, getOrderById, getOrdersByUserId , getAllOrders,  updateOrderById , deleteOrderById } from '../controllers/orderController.js';
+import fetchUser from '../config/fetchUser.js';
 // Common user routes
-router.post('/', createOrder);
-router.get('/:id', getOrderById);
+router.post('/',fetchUser, createOrder);
+router.get('/',fetchUser, getOrdersByUserId);
 
 // Admin-specific routes
-router.get('/', getAllOrders); 
+router.get('/:id',getOrderById);
+router.get('/all', getAllOrders); 
 router.put('/:id', updateOrderById); 
 router.delete('/:id', deleteOrderById);
 
