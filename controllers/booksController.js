@@ -2,6 +2,8 @@ import queryFilter from "../config/filter.js";
 import Books from "../models/booksModel.js";
 import Genre from "../models/genreModel.js";
 import mongoose from "mongoose";
+import cloudinary from "../config/cloudinary.js";
+
 
 export const PostBook = async (req,res)=>{
     try{
@@ -10,11 +12,21 @@ export const PostBook = async (req,res)=>{
         if (duplicate) {
             return res.status(409).json({msg: "Book with this title already exists"})
         }
+        let imageUrl;
+        if (req.body.image) {
+            const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.body.image, {
+                folder: 'bookstore',
+                transformation: [
+                    { width: 500, height: 500, crop: 'scale' } 
+                ],
+            });
+            imageUrl = cloudinaryResponse.secure_url;
+        }
         let book=new Books({
             name: req.body.name,
             description: req.body.description,
             author: req.body.author, 
-            image: req.body.image,
+            image: imageUrl,
             price: req.body.price,
             genre: req.body.genre,
             sold: req.body.sold,
@@ -23,7 +35,6 @@ export const PostBook = async (req,res)=>{
         })
         book= await book.save()
         book= await Books.findById(book._id).populate('author').populate('genre');
-        // book= await book.populate('genre') 
         res.status(200).json({
             msg: "Book has been added",
             data: book
@@ -93,13 +104,21 @@ export const GetAllBooks = async (req, res) => {
 
 export const UpdateBook = async (req,res)=>{
     try{
+        let imageUrl;
+
+        if (req.body.image) {
+            const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.body.image, {
+                folder: 'bookstore', 
+            });
+            imageUrl = cloudinaryResponse.secure_url; 
+        }
         const book = await Books.findOneAndUpdate(
             { slug: req.params.slug },
             {
                 name: req.body.name,
                 description: req.body.description,
                 author: req.body.author, 
-                image: req.body.image,
+                image: imageUrl || undefined,
                 price: req.body.price,
                 genre: req.body.genre,
             },
