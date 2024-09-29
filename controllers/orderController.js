@@ -1,19 +1,43 @@
 
 import Order from "../models/orderModel.js";
-
+import Cart from "../models/cartModel.js";
+import Books from "../models/booksModel.js";
 // accessible to all authenticated users
 export const createOrder = async (req, res) => {
     try {
-        const { user, books, totalAmount, status } = req.body;
-        const newOrder = new Order({
-            user,
-            books,
-            totalAmount,
-            status
+        const userId = req.user.id;
+        // const orderAvailable =  await Order.findOne({orderby: userId})
+        // if (orderAvailable) {
+        //     return res.status(400).json({ error: "order already exist" })
+        // }
+        const userCart = await Cart.findOne({userId: userId})
+        const totalPrice= userCart.totalPrice
+        const totalProduct = userCart.totalProducts
+        let newOrder = new Order({
+            orderby: req.user.id,
+            books: userCart.books,
+            paymentIntent:{
+                amount: totalPrice,
+                count: totalProduct,
+                created: new Date()
+            },
         });
-
         let order = await newOrder.save();
-        order = await Order.findById(order._id).populate('user').populate('books.book')
+        order = await Order.findById(order._id).populate({ path: 'orderby', select: 'username' }).populate('books.book')
+        let updateBook = userCart.books.map((item)=>{
+            return {
+                updateOne: {
+                    filter:{_id: item.book._id},
+                    update: {
+                        $inc : {
+                            sold: +item.quantity,
+                            stock: -item.quantity
+                        }
+                    }
+                }
+            }
+        })
+        await Books.bulkWrite(updateBook, {})
         res.status(201).json({
             msg: "Order has been created",
             data: order
@@ -25,6 +49,7 @@ export const createOrder = async (req, res) => {
         });
     }
 };
+
 
 export const getOrderById = async (req, res) => {
     try {
@@ -46,7 +71,7 @@ export const getOrderById = async (req, res) => {
 export const getOrdersByUserId = async (req, res) => {
     try {
 
-        const orders = await Order.find({ user: req.params.userId });
+        const orders = await Order.find({ orderby: req.user.id });
         
         if (orders.length === 0) {
             return res.status(404).json({ msg: "No orders found for this user" });

@@ -2,31 +2,47 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 
 const orderSchema = new Schema({
-    user: { 
+    orderby: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User', 
-        required: true },
-    books: [{
-        book: { 
-            type: mongoose.Schema.Types.ObjectId, 
-            ref: 'Book', 
-            required: true },
-        quantity: { 
-            type: Number, 
-            required: true, 
-            min: 1 }
-    }],
-    address: {
-        type: String,
-        
+        required: true ,
     },
-    totalAmount: { 
-        type: Number, 
-        required: true },
-    status: { 
+    books: [{
+        book: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Book'
+        },
+        quantity: {
+            type: Number,
+            required: true,
+            min: 1,
+            default: 1
+        }
+    }],
+    paymentIntent: {
+        amount: { 
+            type: Number, 
+            required: true 
+        },
+        currency: { 
+            type: String, 
+            required: true,
+            default: 'usd'
+        },
+        paymentStatus: { 
+            type: String, 
+            enum: ['succeeded', 'pending', 'failed'], 
+            default: 'pending' 
+        },
+        created: { 
+            type: Date 
+        }
+    },
+    orderStatus: { 
         type: String, 
-        enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'], 
-        default: 'pending' },
+        enum: ['Pending', 'Processing', 'Shipped' ,'Delivered', 'Cancelled'], 
+        default: 'Pending' 
+    },
 },
 { 
     timestamps: true 

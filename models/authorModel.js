@@ -10,7 +10,11 @@ const authorSchema = new Schema({
   slug: {
     type: String, 
     unique: true
-  }
+  },
+  books: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Books',
+  }]
 }, { 
   timestamps: true 
 });

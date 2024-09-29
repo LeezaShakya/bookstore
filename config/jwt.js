@@ -7,13 +7,15 @@ export default function authJwt() {
         algorithms: ['HS256'],
         isRevoked: isRevoked
     }).unless({
-        //exclude api
+        //exclude api(these api can be accessed by user)
         path: [
             '/api/user/login',
             '/api/user/register',
             {url:/\/api\/books(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/genre(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/authors(.*)/, methods: ['GET','OPTIONS']},
+            {url:/\/api\/orders(.*)/, methods: ['POST']},
+            {url:/\/api\/orders\/all/, methods: ['GET']},
         ]
     })
 }

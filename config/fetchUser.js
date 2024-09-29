@@ -7,7 +7,7 @@ export default function fetchUser(req,res,next) {
             res.status(401).json({error: "Authenticate using valid token"})
         }
         const data = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(data,"-----------")
+        console.log(data,"--data is--")
         req.user = data;
         next();
     }
