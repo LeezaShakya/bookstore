@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import mainRouter from './routes/indexRoute.js';
 import authJwt from './config/jwt.js';
 import errorHandler from './config/error-handler.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ const corsOptions = {
   credentials: true,
   optionSuccessStatus: 200
 };
-
+app.use(cookieParser())
 // Middleware
 app.use(express.json()); 
 // app.use(cookieParser());

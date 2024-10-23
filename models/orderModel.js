@@ -19,26 +19,31 @@ const orderSchema = new Schema({
             default: 1
         }
     }],
-    paymentIntent: {
-        amount: { 
-            type: Number, 
-            required: true 
-        },
-        currency: { 
-            type: String, 
-            required: true,
-            default: 'usd'
-        },
-        paymentStatus: { 
-            type: String, 
-            enum: ['succeeded', 'pending', 'failed'], 
-            default: 'pending' 
-        },
-        created: { 
-            type: Date 
-        }
+    amount: { 
+        type: Number, 
+        required: true 
     },
-    orderStatus: { 
+    count: { 
+        type: Number, 
+        required: true 
+    },
+    shippingAddress: {
+        type: String,
+        required: true,
+    },
+    city: {
+        type: String,
+        required: true,
+    },
+    zip: {
+        type: String,
+        required: true,
+    },
+    phone: {
+        type: String,
+        required: true,
+    },
+    status: { 
         type: String, 
         enum: ['Pending', 'Processing', 'Shipped' ,'Delivered', 'Cancelled'], 
         default: 'Pending' 
