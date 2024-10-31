@@ -6,12 +6,13 @@ import genreRoutes from './genreRoute.js'
 import userRoutes from './userRoute.js'
 import cartRoutes from './cartRoute.js'
 import orderRoutes from './orderRoute.js';
+import authRoutes from './authRoute.js'
 
 const router = express.Router();
 
 // Use routes
 router.use('/authors', authorRoutes);
-
+router.use('/auth', authRoutes);
 router.use('/books', booksRoutes);
 router.use('/genre', genreRoutes);
 router.use('/user',userRoutes)

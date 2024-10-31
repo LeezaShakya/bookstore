@@ -1,7 +1,7 @@
 import { expressjwt } from "express-jwt";
 
 export default function authJwt() {
-    const secret = process.env.JWT_SECRET;
+    const secret = process.env.ACCESS_TOKEN_SECRET;
     return expressjwt({
         secret,
         algorithms: ['HS256'],
@@ -9,8 +9,7 @@ export default function authJwt() {
     }).unless({
         //exclude api(these api can be accessed by user)
         path: [
-            '/api/user/login',
-            '/api/user/register',
+            {url:/\/api\/auth(.*)/, methods: ['GET','OPTIONS','POST']},
             {url:/\/api\/books(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/genre(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/authors(.*)/, methods: ['GET','OPTIONS']},

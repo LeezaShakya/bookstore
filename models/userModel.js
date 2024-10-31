@@ -23,6 +23,11 @@ const userSchema = new Schema({
         required: true,
         default: "Common"
     },
+    refreshToken: {
+        type: String,
+        required: true,
+        unique: true
+    }
 },
 {
     toJSON: {
