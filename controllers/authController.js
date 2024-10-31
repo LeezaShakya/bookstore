@@ -28,6 +28,7 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   try {
     let user = await User.findOne({ email: req.body.email });
+    console.log(req.body,"request")
     if (!user) {
       return res.status(400).json({ error: "Invalid Credentials" });
     }
@@ -44,24 +45,25 @@ export const login = async (req, res) => {
     //creating access token, refresh token
     let payload = { id: user._id, username: user.username, email: user.email ,role: user.role };
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "1d",
+      expiresIn: "10s", 
     });
 
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-      expiresIn: "1d",
+      expiresIn: "10m",
     });
-
+    user.refreshToken = refreshToken
+    await user.save();
     res.cookie("jwt", refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      secure: false,
+      sameSite: true,
+      maxAge: 20 * 1000 * 60 * 60 * 1000,
     });
 
     // const { password, ...details } = user.toObject();
     // details.token = token;
 
-    res.status(200).json({ msg: "Successfully Logged In", accessToken });
+    res.status(200).json({ msg: "Successfully Logged In", accessToken, refreshToken,  user: { id: user._id, username: user.username, email: user.email, role: user.role } });
   } catch (err) {
     res.status(500).json({ error: "Internal server error" });
   }
@@ -69,6 +71,7 @@ export const login = async (req, res) => {
 
 export const refresh = async (req, res) => {
   const cookies = req.cookies;
+  console.log(cookies," cookies")
   if (!cookies?.jwt) return res.status(400);
   const refreshToken = cookies.jwt;
 

@@ -37,7 +37,7 @@ export const createOrder = async (req, res) => {
         await Books.bulkWrite(updateBook, {})
         res.status(201).json({
             msg: "Order has been created",
-            data: order
+            orders: order
         });
     } catch (error) {
         res.status(500).json({
@@ -56,7 +56,7 @@ export const getOrderById = async (req, res) => {
         }
         res.status(200).json({
             msg: "Order retrieved successfully",
-            data: order
+            orders: order
         });
     } catch (error) {
         res.status(500).json({ 
@@ -68,13 +68,14 @@ export const getOrderById = async (req, res) => {
 //all orders of a user
 export const getOrdersByUserId = async (req, res) => {
     try {
-        const orders = await Order.find({ orderby: req.user._id }).populate('books.book');
+        const userId = req.user.id;
+        const orders = await Order.find({ orderby: userId}).populate('books.book');
         if (orders.length === 0) {
             return res.status(404).json({ msg: "No orders found for this user" });
         }
         res.status(200).json({
             msg: "Orders retrieved successfully",
-            data: orders
+            orders: orders
         });
     } catch (error) {
         res.status(500).json({ 
@@ -93,7 +94,7 @@ export const getAllOrders = async (req, res) => {
         const orders = await Order.find();
         res.status(200).json({
             msg: "Orders retrieved successfully",
-            data: orders
+            orders: orders
         });
     } catch (error) {
         res.status(500).json({
@@ -135,7 +136,7 @@ export const updateOrderById = async (req, res) => {
 
         res.status(200).json({
             msg: "Order updated successfully",
-            data: updatedOrder
+            orders: updatedOrder
         });
     } catch (error) {
         res.status(500).json({ 
