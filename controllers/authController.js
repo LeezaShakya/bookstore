@@ -45,11 +45,11 @@ export const login = async (req, res) => {
     //creating access token, refresh token
     let payload = { id: user._id, username: user.username, email: user.email ,role: user.role };
     const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: "10s", 
+      expiresIn: "7d", 
     });
 
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
-      expiresIn: "10m",
+      expiresIn: "20d",
     });
     user.refreshToken = refreshToken
     await user.save();
