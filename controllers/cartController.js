@@ -5,7 +5,6 @@ export const PostCart = async (req,res)=>{
     try{
         const {id, quantity} = req.body
         const book = await Books.findOne({_id: id})
-        
         //if no book available
         if (!book) {
             res.status(404).json({ message: "Book not found" });

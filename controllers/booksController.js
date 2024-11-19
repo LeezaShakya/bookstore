@@ -12,6 +12,7 @@ export const PostBook = async (req,res)=>{
         if (duplicate) {
             return res.status(409).json({msg: "Book with this title already exists"})
         }
+        let bestseller = req.body.sold > req.body.stock
         let imageUrl;
         if (req.body.image) {
             const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.body.image, {
@@ -32,12 +33,14 @@ export const PostBook = async (req,res)=>{
             sold: req.body.sold,
             stock: req.body.stock,
             slug: req.body.slug,
+            featured: req.body.featured
         })
-        book= await book.save()
-        book= await Books.findById(book._id).populate('author').populate('genre');
+        books= await books.save()
+        books= await Books.findById(books._id).populate('author').populate('genre');
+        // book= await book.populate('genre') 
         res.status(200).json({
             msg: "Book has been added",
-            data: book
+            books
         })
     }
     catch(error){
@@ -90,7 +93,7 @@ export const GetAllBooks = async (req, res) => {
             .skip((req.queryOptions.page - 1) * req.queryOptions.limit);
 
         return res.status(200).json({
-            data: books
+            books
         });
     } catch (err) {
         console.error(err);
