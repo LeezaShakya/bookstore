@@ -8,6 +8,7 @@ export const createOrder = async (req, res) => {
     const userCart = await Cart.findOne({ userId: userId });
     const totalPrice = userCart.totalPrice;
     const totalProduct = userCart.totalProducts;
+    console.log("hello")
     let newOrder = new Order({
       orderby: req.user.id,
       books: userCart.books,

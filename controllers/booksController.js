@@ -23,7 +23,7 @@ export const PostBook = async (req,res)=>{
             });
             imageUrl = cloudinaryResponse.secure_url;
         }
-        let book=new Books({
+        let books=new Books({
             name: req.body.name,
             description: req.body.description,
             author: req.body.author, 
