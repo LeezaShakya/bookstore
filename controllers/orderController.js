@@ -1,6 +1,7 @@
 import Order from "../models/orderModel.js";
 import Cart from "../models/cartModel.js";
 import Books from "../models/booksModel.js";
+import activityTracker from "../config/activity.js";
 // accessible to all authenticated users
 export const createOrder = async (req, res) => {
   try {
@@ -23,36 +24,38 @@ export const createOrder = async (req, res) => {
     order = await Order.findById(order._id)
       .populate({ path: "orderby", select: "username" })
       .populate("books.book");
-      // Step 1: Update sales and stock using `bulkWrite`
-const updateStockAndSales = userCart.books.map((item) => ({
-    updateOne: {
-      filter: { _id: item.book._id },
-      update: {
-        $inc: {
-          stock: -item.quantity, // Decrement stock
-          sales: item.quantity   // Increment sales
-        }
-      }
-    }
-  }));
-  
-  await Books.bulkWrite(updateStockAndSales);
-  
-  const updateBestseller = userCart.books.map((item) => ({
-    updateOne: {
-      filter: { _id: item.book._id },
-      update: {
-        $set: {
-          bestseller: {
-            $cond: [ { $gte: [ "$sales", "$stock" ] }, true, false ]
+    // Step 1: Update sales and stock using `bulkWrite`
+    const updateStockAndSales = userCart.books.map((item) => ({
+      updateOne: {
+        filter: { _id: item.book._id },
+        update: {
+          $inc: {
+            stock: -item.quantity, // Decrement stock
+            sales: item.quantity   // Increment sales
           }
         }
       }
-    }
-  }));
-  
-  // Perform the bestseller update
-  await Books.bulkWrite(updateBestseller);
+    }));
+
+    await Books.bulkWrite(updateStockAndSales);
+
+    const updateBestseller = userCart.books.map((item) => ({
+      updateOne: {
+        filter: { _id: item.book._id },
+        update: {
+          $set: {
+            bestseller: {
+              $cond: [{ $gte: ["$sales", "$stock"] }, true, false]
+            }
+          }
+        }
+      }
+    }));
+
+    // Perform the bestseller update
+    await Books.bulkWrite(updateBestseller);
+    const orderId= order._id.toHexString();
+    await activityTracker('Added', req.user.id, 'order', orderId);
     res.status(201).json({
       msg: "Order has been created",
       orders: order,
@@ -135,32 +138,31 @@ export const updateOrderById = async (req, res) => {
       return res.status(404).json({ msg: "Order not found" });
     }
     if (status != "Success") {
-        const updateBooks = userCart.books.map((item) => ({
-            updateOne: {
-              filter: { _id: item.book._id },
-              update: {
-                $dec: {
-                  stock: -item.quantity, 
-                  sales: item.quantity 
-                },
-                $set: {
-                  bestseller: {
-                    $cond: {
-                      if: { $gt: [{ $add: ["$sales", item.quantity] }, { $subtract: ["$stock", item.quantity] }] },
-                      then: true,
-                      else: false
-                    }
-                  }
+      const updateBooks = userCart.books.map((item) => ({
+        updateOne: {
+          filter: { _id: item.book._id },
+          update: {
+            $dec: {
+              stock: -item.quantity,
+              sales: item.quantity
+            },
+            $set: {
+              bestseller: {
+                $cond: {
+                  if: { $gt: [{ $add: ["$sales", item.quantity] }, { $subtract: ["$stock", item.quantity] }] },
+                  then: true,
+                  else: false
                 }
               }
             }
-          }));
-          await Books.bulkWrite(updateBooks)
-      await Books.bulkWrite(updateBook, {});
-      await Cart.findOneAndDelete({ userId: updatedOrder.orderby });
+          }
+        }
+      }));
+      await Books.bulkWrite(updateBooks)
     }
     await updatedOrder.save();
-
+    const orderId= updatedOrder._id.toHexString();
+    await activityTracker('Updated', req.user._id, 'order', orderId);
     res.status(200).json({
       msg: "Order updated successfully",
       orders: updatedOrder,

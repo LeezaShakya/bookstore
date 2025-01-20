@@ -7,6 +7,7 @@ import userRoutes from './userRoute.js'
 import cartRoutes from './cartRoute.js'
 import orderRoutes from './orderRoute.js';
 import authRoutes from './authRoute.js'
+import activityRoutes from './activityRoute.js'
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.use('/genre', genreRoutes);
 router.use('/user',userRoutes)
 router.use('/cart',cartRoutes)
 router.use('/orders', orderRoutes);
+router.use('/activity', activityRoutes);
 //remaining routes
 
 export default router;
