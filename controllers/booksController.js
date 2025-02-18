@@ -3,6 +3,8 @@ import queryFilter from "../config/filter.js";
 import Books from "../models/booksModel.js";
 import Genre from "../models/genreModel.js";
 import mongoose from "mongoose";
+import cloudinary from "../config/cloudinary.js";
+
 
 export const PostBook = async (req,res)=>{
     try{
@@ -11,11 +13,21 @@ export const PostBook = async (req,res)=>{
             return res.status(409).json({msg: "Book with this title already exists"})
         }
         const genre = await Genre.find({ name:{$in: req.body.genre }},{name:0})
+        let imageUrl;
+        if (req.body.image) {
+            const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.body.image, {
+                folder: 'bookstore',
+                transformation: [
+                    { width: 500, height: 500, crop: 'scale' } 
+                ],
+            });
+            imageUrl = cloudinaryResponse.secure_url;
+        }
         let books=new Books({
             name: req.body.name,
             description: req.body.description,
             author: req.body.author, 
-            image: req.body.image,
+            image: imageUrl,
             price: req.body.price,
             genre: genre,
             stock: req.body.stock,
@@ -95,13 +107,20 @@ export const GetAllBooks = async (req, res) => {
 export const UpdateBook = async (req,res)=>{
     try{
         const genre = await Genre.find({ name:{$in: req.body.genre }},{name:0})
+        let imageUrl;
+        if (req.body.image) {
+            const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.body.image, {
+                folder: 'bookstore', 
+            });
+            imageUrl = cloudinaryResponse.secure_url; 
+        }
         const book = await Books.findOneAndUpdate(
             { slug: req.params.slug },
             {
                 name: req.body.name,
                 description: req.body.description,
                 author: req.body.author, 
-                image: req.body.image,
+                image: imageUrl || undefined,
                 price: req.body.price,
                 stock: req.body.stock,
                 featured: req.body.featured,

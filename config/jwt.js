@@ -13,8 +13,8 @@ export default function authJwt() {
             {url:/\/api\/books(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/genre(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/authors(.*)/, methods: ['GET','OPTIONS']},
-            {url:/\/api\/orders(.*)/, methods: ['POST']},
-            {url:/\/api\/orders\/all/, methods: ['GET']},
+            {url:/\/api\/orders(.*)/, methods: ['POST','GET']},
+            // {url:/\/api\/orders\/all/, methods: ['GET']},
         ]
     })
 }

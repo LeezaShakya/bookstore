@@ -9,6 +9,7 @@ export const createOrder = async (req, res) => {
     const userCart = await Cart.findOne({ userId: userId });
     const totalPrice = userCart.totalPrice;
     const totalProduct = userCart.totalProducts;
+    console.log("hello")
     let newOrder = new Order({
       orderby: req.user.id,
       books: userCart.books,
@@ -108,9 +109,6 @@ export const getOrdersByUserId = async (req, res) => {
 
 // admin only
 export const getAllOrders = async (req, res) => {
-  if (req.user.role !== "Admin") {
-    return res.status(403).json({ msg: "Access is Denied" });
-  }
   try {
     const orders = await Order.find();
     res.status(200).json({

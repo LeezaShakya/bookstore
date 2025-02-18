@@ -17,10 +17,6 @@ const dashboardSchema = new Schema({
     totalProducts: {
         type: Number,
         required: true
-    },
-    activity:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:'Activity'
     }
 })
 const Dashboard = mongoose.model('Dashboard', dashboardSchema);
