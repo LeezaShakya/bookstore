@@ -49,7 +49,6 @@ const booksSchema = new Schema({
     },
     bestseller:{
         type: Boolean,
-        required: true,
         default: false,
     },
     featured:{

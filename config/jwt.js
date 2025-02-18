@@ -10,11 +10,11 @@ export default function authJwt() {
         //exclude api(these api can be accessed by user)
         path: [
             {url:/\/api\/auth(.*)/, methods: ['GET','OPTIONS','POST']},
-            {url:/\/api\/books(.*)/, methods: ['GET','OPTIONS','POST']},
+            {url:/\/api\/books(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/genre(.*)/, methods: ['GET','OPTIONS']},
             {url:/\/api\/authors(.*)/, methods: ['GET','OPTIONS']},
-            {url:/\/api\/orders(.*)/, methods: ['POST']},
-            {url:/\/api\/orders\/all/, methods: ['GET']},
+            {url:/\/api\/orders(.*)/, methods: ['POST','GET']},
+            // {url:/\/api\/orders\/all/, methods: ['GET']},
         ]
     })
 }

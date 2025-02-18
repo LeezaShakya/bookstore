@@ -1,3 +1,4 @@
+import activityTracker from "../config/activity.js";
 import queryFilter from "../config/filter.js";
 import Books from "../models/booksModel.js";
 import Genre from "../models/genreModel.js";
@@ -8,11 +9,10 @@ import cloudinary from "../config/cloudinary.js";
 export const PostBook = async (req,res)=>{
     try{
         const duplicate = await Books.findOne({name: req.body.name})
-        console.log(duplicate,"--------")
         if (duplicate) {
             return res.status(409).json({msg: "Book with this title already exists"})
         }
-        let bestseller = req.body.sold > req.body.stock
+        const genre = await Genre.find({ name:{$in: req.body.genre }},{name:0})
         let imageUrl;
         if (req.body.image) {
             const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.body.image, {
@@ -29,15 +29,15 @@ export const PostBook = async (req,res)=>{
             author: req.body.author, 
             image: imageUrl,
             price: req.body.price,
-            genre: req.body.genre,
-            sold: req.body.sold,
+            genre: genre,
             stock: req.body.stock,
-            slug: req.body.slug,
             featured: req.body.featured
         })
         books= await books.save()
         books= await Books.findById(books._id).populate('author').populate('genre');
         // book= await book.populate('genre') 
+        const bookId= books._id.toHexString();
+        await activityTracker('Added', req.user.id, 'book', bookId);
         res.status(200).json({
             msg: "Book has been added",
             books
@@ -56,7 +56,6 @@ export const PostBook = async (req,res)=>{
 }
 export const GetBookById = async (req,res)=>{
     try{
-        console.log(req.params.slug, "-----slug ")
         const book = await Books.findOne({slug: req.params.slug})
         if (!book) {
             return res.status(404).json({ msg: "Book not found" });
@@ -107,8 +106,8 @@ export const GetAllBooks = async (req, res) => {
 
 export const UpdateBook = async (req,res)=>{
     try{
+        const genre = await Genre.find({ name:{$in: req.body.genre }},{name:0})
         let imageUrl;
-
         if (req.body.image) {
             const cloudinaryResponse = await cloudinary.v2.uploader.upload(req.body.image, {
                 folder: 'bookstore', 
@@ -123,13 +122,17 @@ export const UpdateBook = async (req,res)=>{
                 author: req.body.author, 
                 image: imageUrl || undefined,
                 price: req.body.price,
-                genre: req.body.genre,
+                stock: req.body.stock,
+                featured: req.body.featured,
+                genre: genre,
             },
             { new:true }
         )
         if (!book){
             return res.status(400).json({msg:"Book Not Found"})
         }
+        const bookId= book._id.toHexString();
+        await activityTracker('Updated', req.user.id, 'book', bookId);
         return res.status(200).json(book)
     }
     catch(err){
@@ -146,6 +149,8 @@ export const DeleteBook = async (req,res)=>{
         if(!result){
             res.status(400).json({msg: "Book not found"})
         }
+        const bookId= result._id.toHexString();
+        await activityTracker('Deleted', req.user.id, 'book', bookId);
         return res.status(200).json({msg: `Successfully deleted `})
     }
     catch(err){

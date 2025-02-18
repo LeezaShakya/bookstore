@@ -18,9 +18,6 @@ export const PostGenre = async (req,res)=>{
     }
     catch(error){
         console.error(error)
-        res.status(409).json({
-            msg: "Genre already exists"
-        })
         res.status(500).json({ 
             msg: "internal server error", 
             error: error.message 
