@@ -22,6 +22,10 @@ const activitySchema = new Schema({
         ref: 'Order',
         default: null
     },
+    description: { 
+        type: String, 
+        required: true 
+    },
     timestamp: {
         type: Date,
         default:Date.now

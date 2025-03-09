@@ -1,6 +1,7 @@
 import activityTracker from "../config/activity.js";
 import queryFilter from "../config/filter.js";
 import Books from "../models/booksModel.js";
+import User from "../models/userModel.js";
 import Genre from "../models/genreModel.js";
 import mongoose from "mongoose";
 import cloudinary from "../config/cloudinary.js";
@@ -33,11 +34,13 @@ export const PostBook = async (req,res)=>{
             stock: req.body.stock,
             featured: req.body.featured
         })
+        const user = await User.findById(req.user.id);
+        console.log(user,req.user.id,"test")
         books= await books.save()
         books= await Books.findById(books._id).populate('author').populate('genre');
-        // book= await book.populate('genre') 
         const bookId= books._id.toHexString();
-        await activityTracker('Added', req.user.id, 'book', bookId);
+        const description = `${user.username} added a new book ${books.name}`
+        await activityTracker('Added', req.user.id, bookId, description);
         res.status(200).json({
             msg: "Book has been added",
             books
@@ -132,7 +135,9 @@ export const UpdateBook = async (req,res)=>{
             return res.status(400).json({msg:"Book Not Found"})
         }
         const bookId= book._id.toHexString();
-        await activityTracker('Updated', req.user.id, 'book', bookId);
+        const user = await User.findById(req.user.id);
+        const description = `${user.username} updated a book: ${book.name}`
+        await activityTracker('Updated', req.user.id, bookId, description);
         return res.status(200).json(book)
     }
     catch(err){
@@ -145,12 +150,15 @@ export const UpdateBook = async (req,res)=>{
 }
 export const DeleteBook = async (req,res)=>{
     try{
+        const book= await Books.findOne({slug: req.params.slug })
         const result =await Books.findOneAndDelete({ slug: req.params.slug })
         if(!result){
             res.status(400).json({msg: "Book not found"})
         }
         const bookId= result._id.toHexString();
-        await activityTracker('Deleted', req.user.id, 'book', bookId);
+        const user = await User.findById(req.user.id);
+        const description = `${user.username} deleted ${book.name}`
+        await activityTracker('Deleted', req.user.id, bookId, description);
         return res.status(200).json({msg: `Successfully deleted `})
     }
     catch(err){

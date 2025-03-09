@@ -2,6 +2,7 @@ import Order from "../models/orderModel.js";
 import Cart from "../models/cartModel.js";
 import Books from "../models/booksModel.js";
 import activityTracker from "../config/activity.js";
+import User from "../models/userModel.js";
 // accessible to all authenticated users
 export const createOrder = async (req, res) => {
   try {
@@ -56,7 +57,9 @@ export const createOrder = async (req, res) => {
     // Perform the bestseller update
     await Books.bulkWrite(updateBestseller);
     const orderId= order._id.toHexString();
-    await activityTracker('Added', req.user.id, 'order', orderId);
+    const user = await User.findById(req.user.id);
+    const description = `${user.username} placed an order`
+    await activityTracker('Added', req.user.id, orderId, description, 'order');
     res.status(201).json({
       msg: "Order has been created",
       orders: order,
@@ -160,7 +163,9 @@ export const updateOrderById = async (req, res) => {
     }
     await updatedOrder.save();
     const orderId= updatedOrder._id.toHexString();
-    await activityTracker('Updated', req.user._id, 'order', orderId);
+    const user = await User.findById(req.user.id);
+    const description = `${user.username} updated order status`;
+    await activityTracker('Updated', req.user.id, orderId, description, 'order');
     res.status(200).json({
       msg: "Order updated successfully",
       orders: updatedOrder,
